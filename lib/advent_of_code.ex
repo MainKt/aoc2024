@@ -26,4 +26,24 @@ defmodule AdventOfCode do
   end
 
   defp update_elem(tuple, index, func), do: put_elem(tuple, index, func.(elem(tuple, index)))
+
+  def day2_part1 do
+    File.stream!("inputs/day2_part1")
+    |> Stream.map(&(String.split(&1) |> Enum.map(fn nums -> String.to_integer(nums) end)))
+    |> Stream.filter(fn level -> monotonic?(level, &<=/2) or monotonic?(level, &>=/2) end)
+    |> Stream.filter(fn level -> monotonic?(level, &(abs(&1 - &2) in 1..3)) end)
+    |> Enum.count()
+  end
+
+  defp monotonic?(list, func) do
+    [head | tail] = list
+
+    tail
+    |> Enum.reduce_while(
+      head,
+      fn curr, prev ->
+        if func.(prev, curr), do: {:cont, curr}, else: {:halt, :non_monotonic}
+      end
+    ) != :non_monotonic
+  end
 end
