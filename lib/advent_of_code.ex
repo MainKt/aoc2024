@@ -79,4 +79,25 @@ defmodule AdventOfCode do
     |> Stream.map(&Tuple.product/1)
     |> Enum.sum()
   end
+
+  def day3_part2 do
+    instructions = File.stream!("inputs/day3") |> Enum.join()
+
+    ~r/mul\((\d+),(\d+)\)|don\'t|do/
+    |> Regex.scan(instructions)
+    |> Stream.map(fn
+      [cmd] -> cmd
+      [_ | nums] -> nums |> Enum.map(&String.to_integer/1) |> List.to_tuple()
+    end)
+    |> Enum.reduce(
+      {"do", 0},
+      fn
+        "do", {_, sum} -> {"do", sum}
+        "don't", {_, sum} -> {"don't", sum}
+        {a, b}, {"do", sum} -> {"do", a * b + sum}
+        _, {"don't", sum} -> {"don't", sum}
+      end
+    )
+    |> elem(1)
+  end
 end
